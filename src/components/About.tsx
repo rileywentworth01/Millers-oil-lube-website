@@ -2,7 +2,7 @@ import { Droplet, Users, Award, MapPin, Heart, ShieldCheck } from 'lucide-react'
 
 export default function About() {
   const stats = [
-    { icon: Users, value: '10,000+', label: 'Oil Changes Performed' },
+    { icon: Users, value: '100,000+', label: 'Oil Changes Performed' },
     { icon: Award, value: '20 Years', label: 'Serving Whitehall' },
     { icon: MapPin, value: 'Whitehall', label: 'Michigan' },
     { icon: Droplet, value: '100+', label: 'Models Serviced' },

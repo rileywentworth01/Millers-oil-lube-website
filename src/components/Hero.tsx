@@ -1,4 +1,4 @@
-import { Droplet, Wrench, MapPin, Clock, ArrowDown } from 'lucide-react';
+import { Droplet, Wrench, MapPin, Clock, ArrowDown, ShieldX } from 'lucide-react';
 
 export default function Hero() {
   const scrollToLookup = () => document.querySelector('#lookup')?.scrollIntoView({ behavior: 'smooth' });
@@ -42,6 +42,11 @@ export default function Hero() {
             <button onClick={() => document.querySelector('#services')?.scrollIntoView({ behavior: 'smooth' })} className="btn-ghost">
               <Wrench className="w-4 h-4" /> Our Services
             </button>
+          </div>
+
+          <div className="flex items-center gap-3 mb-10 px-5 py-3 bg-red-950/30 border border-red-800/40 animate-fade-in-up" style={{ animationDelay: '0.35s' }}>
+            <ShieldX className="w-4 h-4 text-red-400 flex-shrink-0" />
+            <span className="text-xs text-red-300/90 font-light tracking-wide">We do NOT service MINI Coopers of any kind — please see a dealership.</span>
           </div>
 
           <div className="grid grid-cols-3 gap-8 max-w-md animate-fade-in-up" style={{ animationDelay: '0.4s' }}>

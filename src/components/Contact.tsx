@@ -49,7 +49,7 @@ export default function Contact() {
                 <Phone className="w-4 h-4 text-[#c9a96e] flex-shrink-0 mt-1" />
                 <div>
                   <div className="text-sm text-white font-medium">Give us a call</div>
-                  <div className="text-sm text-slate-400 font-light">(231) 000-0000</div>
+                  <div className="text-sm text-slate-400 font-light">231-894-9340</div>
                 </div>
               </div>
             </div>

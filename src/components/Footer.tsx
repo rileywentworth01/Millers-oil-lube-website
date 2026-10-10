@@ -1,4 +1,4 @@
-import { Droplet, MapPin, User } from 'lucide-react';
+import { Droplet, MapPin, User, Phone } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -23,6 +23,11 @@ export default function Footer() {
           <div className="flex items-center gap-2 text-xs text-slate-500 font-light">
             <MapPin className="w-3.5 h-3.5 text-[#c9a96e]" />
             <span>Whitehall, Michigan</span>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs text-slate-500 font-light">
+            <Phone className="w-3.5 h-3.5 text-[#c9a96e]" />
+            <span>231-894-9340</span>
           </div>
 
           <div className="text-xs text-slate-600 font-light">

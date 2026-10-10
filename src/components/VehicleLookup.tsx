@@ -52,11 +52,18 @@ export default function VehicleLookup() {
     let filtered = vehicles;
     if (selectedMake) filtered = filtered.filter((v) => v.make === selectedMake);
     if (selectedModel) filtered = filtered.filter((v) => v.model === selectedModel);
+    if (selectedYear) {
+      const yr = parseInt(selectedYear);
+      filtered = filtered.filter((v) =>
+        v.year_start !== null && v.year_end !== null &&
+        yr >= v.year_start && yr <= v.year_end
+      );
+    }
     return filtered.map((v) => ({
-      label: `${v.engine_liters || '?'}L ${v.engine_type.toUpperCase()} — ${v.engine_specs || v.body_type}`,
+      label: `${v.engine_liters || '?'}L ${v.engine_type.toUpperCase()} — ${v.engine_specs || v.body_type} (${v.year_start}–${v.year_end || 'Now'})`,
       value: v.id,
     }));
-  }, [vehicles, selectedMake, selectedModel]);
+  }, [vehicles, selectedMake, selectedModel, selectedYear]);
 
   const handleSearch = () => {
     let filtered = [...vehicles];
@@ -64,12 +71,21 @@ export default function VehicleLookup() {
     if (selectedMake) filtered = filtered.filter((v) => v.make === selectedMake);
     if (selectedModel) filtered = filtered.filter((v) => v.model === selectedModel);
     if (selectedYear) {
+      const yr = parseInt(selectedYear);
       filtered = filtered.filter((v) =>
         v.year_start !== null && v.year_end !== null &&
-        parseInt(selectedYear) >= v.year_start && parseInt(selectedYear) <= v.year_end
+        yr >= v.year_start && yr <= v.year_end
       );
     }
     if (selectedEngine) filtered = filtered.filter((v) => v.id === selectedEngine);
+
+    // If year is selected but no engine, and we got no results, try without year filter
+    if (filtered.length === 0 && selectedYear && !selectedEngine) {
+      let broader = [...vehicles];
+      if (selectedMake) broader = broader.filter((v) => v.make === selectedMake);
+      if (selectedModel) broader = broader.filter((v) => v.model === selectedModel);
+      if (broader.length > 0) filtered = broader;
+    }
 
     setResults(filtered);
     setSearched(true);
@@ -389,11 +405,14 @@ export default function VehicleLookup() {
               ))}
             </div>
 
-            <div className="mt-8 bg-amber-950/20 border border-amber-800/30 p-5 flex items-start gap-3">
-              <AlertOctagon className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-amber-200/80 font-light">
-                <span className="font-medium">Note:</span> We cannot service any MINI Cooper — the exhaust covers the oil pan and filter, requiring dealership service.
-              </p>
+            <div className="mt-8 bg-red-950/30 border border-red-800/40 p-6 flex items-start gap-4">
+              <ShieldX className="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-display text-lg text-red-300 font-medium">We Do NOT Service MINI Coopers — Any Model, Any Year</p>
+                <p className="text-sm text-red-400/70 mt-1 font-light">
+                  The exhaust system covers the oil pan and filter on all MINI Cooper models, making it impossible to service without dealership equipment. Please take your MINI Cooper to a dealership for oil changes.
+                </p>
+              </div>
             </div>
 
             <div className="text-center mt-8">
