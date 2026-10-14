@@ -110,11 +110,38 @@ export default function VehicleLookup() {
     setMobil1Filter(false);
   };
 
+  const viscosityMatches = (oilViscosity: string, target: string): boolean => {
+    const v = oilViscosity.toUpperCase().trim();
+    const t = target.toUpperCase().trim();
+    if (v === 'VARIOUS') return true;
+    if (v === t) return true;
+    if (v.includes(' ')) {
+      const base = v.split(' ')[0];
+      if (base === t) return true;
+    }
+    if (t.includes(' ')) {
+      const base = t.split(' ')[0];
+      if (base === v) return true;
+    }
+    return false;
+  };
+
   const getRecommendedOils = (vehicle: Vehicle): OilProduct[] => {
     if (vehicle.engine_type === 'electric') return [];
-    if (vehicle.engine_type === 'diesel') return oilProducts.filter((o) => o.category === 'diesel');
-    if (vehicle.synthetic_recommended) return oilProducts.filter((o) => o.category === 'synthetic' || o.category === 'blend');
-    return oilProducts;
+    const viscosity = vehicle.recommended_viscosity || '';
+    if (vehicle.engine_type === 'diesel') {
+      const diesel = oilProducts.filter((o) => o.category === 'diesel');
+      const matched = diesel.filter((o) => viscosityMatches(o.viscosity, viscosity));
+      return matched.length > 0 ? matched : diesel;
+    }
+    if (vehicle.synthetic_recommended) {
+      const synth = oilProducts.filter((o) => o.category === 'synthetic' || o.category === 'blend');
+      const matched = synth.filter((o) => viscosityMatches(o.viscosity, viscosity));
+      return matched.length > 0 ? matched : synth;
+    }
+    const all = oilProducts.filter((o) => o.category === 'conventional' || o.category === 'blend');
+    const matched = all.filter((o) => viscosityMatches(o.viscosity, viscosity));
+    return matched.length > 0 ? matched : oilProducts;
   };
 
   const calculateOilCost = (vehicle: Vehicle, product: OilProduct): number => {
@@ -315,13 +342,13 @@ export default function VehicleLookup() {
                             </div>
                           </div>
                           <div className="border-l border-white/10 pl-3">
-                            <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Oil Filter</div>
-                            <div className="text-sm text-slate-300 font-medium">{vehicle.oil_filter || '—'}</div>
+                            <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Oil Weight</div>
+                            <div className="text-sm text-slate-300 font-medium">{vehicle.recommended_viscosity || '—'}</div>
+                            <div className="text-[10px] text-slate-500">Recommended grade</div>
                           </div>
                           <div className="border-l border-white/10 pl-3">
-                            <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Mobil 1 Filter</div>
-                            <div className="text-sm text-slate-300 font-medium">$12.00</div>
-                            <div className="text-[10px] text-slate-500">Premium upgrade</div>
+                            <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Oil Filter</div>
+                            <div className="text-sm text-slate-300 font-medium">{vehicle.oil_filter || '—'}</div>
                           </div>
                         </div>
                       )}

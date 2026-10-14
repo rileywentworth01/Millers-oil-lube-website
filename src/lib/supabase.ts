@@ -35,6 +35,7 @@ export interface Vehicle {
   oil_filter: string | null;
   sort_order: number;
   trim: string | null;
+  recommended_viscosity: string | null;
 }
 
 export interface WiperBlade {
