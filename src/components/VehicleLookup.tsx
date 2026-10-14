@@ -44,10 +44,18 @@ export default function VehicleLookup() {
   }, [vehicles, selectedMake]);
 
   const years = useMemo(() => {
-    const allYears: number[] = [];
-    for (let y = 2024; y >= 1970; y--) allYears.push(y);
-    return allYears;
+    const currentYear = new Date().getFullYear();
+
+    return Array.from(
+      { length: currentYear - 1970 + 1 },
+      (_, i) => currentYear - i
+    );
   }, []);
+
+  const matchesYear = (vehicle: Vehicle, year: number) =>
+    vehicle.year_start !== null &&
+    year >= vehicle.year_start &&
+    (vehicle.year_end === null || year <= vehicle.year_end);
 
   const trims = useMemo(() => {
     let filtered = vehicles;
@@ -55,10 +63,7 @@ export default function VehicleLookup() {
     if (selectedModel) filtered = filtered.filter((v) => v.model === selectedModel);
     if (selectedYear) {
       const yr = parseInt(selectedYear);
-      filtered = filtered.filter((v) =>
-        v.year_start !== null && v.year_end !== null &&
-        yr >= v.year_start && yr <= v.year_end
-      );
+      filtered = filtered.filter((v) => matchesYear(v, yr));
     }
     return [...new Set(filtered.map((v) => v.trim).filter(Boolean))].sort();
   }, [vehicles, selectedMake, selectedModel, selectedYear]);
@@ -69,10 +74,7 @@ export default function VehicleLookup() {
     if (selectedModel) filtered = filtered.filter((v) => v.model === selectedModel);
     if (selectedYear) {
       const yr = parseInt(selectedYear);
-      filtered = filtered.filter((v) =>
-        v.year_start !== null && v.year_end !== null &&
-        yr >= v.year_start && yr <= v.year_end
-      );
+      filtered = filtered.filter((v) => matchesYear(v, yr));
     }
     if (selectedTrim) filtered = filtered.filter((v) => v.trim === selectedTrim);
     return filtered.map((v) => ({
@@ -88,22 +90,10 @@ export default function VehicleLookup() {
     if (selectedModel) filtered = filtered.filter((v) => v.model === selectedModel);
     if (selectedYear) {
       const yr = parseInt(selectedYear);
-      filtered = filtered.filter((v) =>
-        v.year_start !== null && v.year_end !== null &&
-        yr >= v.year_start && yr <= v.year_end
-      );
+      filtered = filtered.filter((v) => matchesYear(v, yr));
     }
     if (selectedTrim) filtered = filtered.filter((v) => v.trim === selectedTrim);
     if (selectedEngine) filtered = filtered.filter((v) => v.id === selectedEngine);
-
-    // If year is selected but no engine, and we got no results, try without year filter
-    if (filtered.length === 0 && selectedYear && !selectedEngine) {
-      let broader = [...vehicles];
-      if (selectedMake) broader = broader.filter((v) => v.make === selectedMake);
-      if (selectedModel) broader = broader.filter((v) => v.model === selectedModel);
-      if (selectedTrim) broader = broader.filter((v) => v.trim === selectedTrim);
-      if (broader.length > 0) filtered = broader;
-    }
 
     setResults(filtered);
     setSearched(true);
