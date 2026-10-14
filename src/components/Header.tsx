@@ -55,15 +55,15 @@ export default function Header() {
       </div>
 
       {mobileOpen && (
-        <div className="lg:hidden absolute top-full left-0 right-0 bg-[#0a0e1a]/98 backdrop-blur-xl border-t border-white/5 animate-fade-in">
+        <div className="lg:hidden fixed top-[72px] left-0 right-0 bottom-0 bg-[#0a0e1a] z-40 animate-fade-in overflow-y-auto">
           <nav className="flex flex-col p-6 gap-1">
             {navLinks.map((link) => (
               <button key={link.href} onClick={() => handleNavClick(link.href)}
-                className="px-4 py-3 text-left text-sm font-light text-slate-300 hover:text-[#c9a96e] transition-colors">
+                className="px-4 py-4 text-left text-base font-light text-slate-300 hover:text-[#c9a96e] transition-colors border-b border-white/5">
                 {link.label}
               </button>
             ))}
-            <button onClick={() => handleNavClick('#lookup')} className="btn-primary mt-3">Find Your Oil</button>
+            <button onClick={() => handleNavClick('#lookup')} className="btn-primary mt-4">Find Your Oil</button>
           </nav>
         </div>
       )}
