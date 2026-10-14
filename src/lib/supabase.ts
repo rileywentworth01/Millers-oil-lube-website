@@ -34,6 +34,7 @@ export interface Vehicle {
   serviceable: boolean;
   oil_filter: string | null;
   sort_order: number;
+  trim: string | null;
 }
 
 export interface WiperBlade {

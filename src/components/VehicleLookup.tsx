@@ -11,6 +11,7 @@ export default function VehicleLookup() {
   const [selectedMake, setSelectedMake] = useState('');
   const [selectedModel, setSelectedModel] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
+  const [selectedTrim, setSelectedTrim] = useState('');
   const [selectedEngine, setSelectedEngine] = useState('');
   const [results, setResults] = useState<Vehicle[]>([]);
   const [searched, setSearched] = useState(false);
@@ -48,6 +49,20 @@ export default function VehicleLookup() {
     return allYears;
   }, []);
 
+  const trims = useMemo(() => {
+    let filtered = vehicles;
+    if (selectedMake) filtered = filtered.filter((v) => v.make === selectedMake);
+    if (selectedModel) filtered = filtered.filter((v) => v.model === selectedModel);
+    if (selectedYear) {
+      const yr = parseInt(selectedYear);
+      filtered = filtered.filter((v) =>
+        v.year_start !== null && v.year_end !== null &&
+        yr >= v.year_start && yr <= v.year_end
+      );
+    }
+    return [...new Set(filtered.map((v) => v.trim).filter(Boolean))].sort();
+  }, [vehicles, selectedMake, selectedModel, selectedYear]);
+
   const engines = useMemo(() => {
     let filtered = vehicles;
     if (selectedMake) filtered = filtered.filter((v) => v.make === selectedMake);
@@ -59,11 +74,12 @@ export default function VehicleLookup() {
         yr >= v.year_start && yr <= v.year_end
       );
     }
+    if (selectedTrim) filtered = filtered.filter((v) => v.trim === selectedTrim);
     return filtered.map((v) => ({
       label: `${v.engine_liters || '?'}L ${v.engine_type.toUpperCase()} — ${v.engine_specs || v.body_type} (${v.year_start}–${v.year_end || 'Now'})`,
       value: v.id,
     }));
-  }, [vehicles, selectedMake, selectedModel, selectedYear]);
+  }, [vehicles, selectedMake, selectedModel, selectedYear, selectedTrim]);
 
   const handleSearch = () => {
     let filtered = [...vehicles];
@@ -77,6 +93,7 @@ export default function VehicleLookup() {
         yr >= v.year_start && yr <= v.year_end
       );
     }
+    if (selectedTrim) filtered = filtered.filter((v) => v.trim === selectedTrim);
     if (selectedEngine) filtered = filtered.filter((v) => v.id === selectedEngine);
 
     // If year is selected but no engine, and we got no results, try without year filter
@@ -84,6 +101,7 @@ export default function VehicleLookup() {
       let broader = [...vehicles];
       if (selectedMake) broader = broader.filter((v) => v.make === selectedMake);
       if (selectedModel) broader = broader.filter((v) => v.model === selectedModel);
+      if (selectedTrim) broader = broader.filter((v) => v.trim === selectedTrim);
       if (broader.length > 0) filtered = broader;
     }
 
@@ -95,6 +113,7 @@ export default function VehicleLookup() {
     setSelectedMake('');
     setSelectedModel('');
     setSelectedYear('');
+    setSelectedTrim('');
     setSelectedEngine('');
     setResults([]);
     setSearched(false);
@@ -153,18 +172,18 @@ export default function VehicleLookup() {
             Find Your Vehicle's Oil Specifications
           </h2>
           <p className="text-base text-slate-400 font-light max-w-xl mx-auto leading-relaxed">
-            Select your make, model, year, and engine to discover exact oil capacity,
+            Select your make, model, year, trim, and engine to discover exact oil capacity,
             recommended oil type, drivetrain service availability, and per-quart pricing.
           </p>
         </div>
 
         {/* Search Form */}
         <div className="card p-8 sm:p-10 max-w-3xl mx-auto mb-12">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             <div>
               <label className="label-lux">Make</label>
               <select value={selectedMake}
-                onChange={(e) => { setSelectedMake(e.target.value); setSelectedModel(''); setSelectedEngine(''); }}
+                onChange={(e) => { setSelectedMake(e.target.value); setSelectedModel(''); setSelectedTrim(''); setSelectedEngine(''); }}
                 className="input-lux">
                 <option value="">All Makes</option>
                 {makes.map((make) => <option key={make} value={make}>{make}</option>)}
@@ -173,7 +192,7 @@ export default function VehicleLookup() {
             <div>
               <label className="label-lux">Model</label>
               <select value={selectedModel}
-                onChange={(e) => setSelectedModel(e.target.value)}
+                onChange={(e) => { setSelectedModel(e.target.value); setSelectedTrim(''); setSelectedEngine(''); }}
                 disabled={!selectedMake}
                 className="input-lux disabled:opacity-40">
                 <option value="">All Models</option>
@@ -183,13 +202,23 @@ export default function VehicleLookup() {
             <div>
               <label className="label-lux">Year</label>
               <select value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
+                onChange={(e) => { setSelectedYear(e.target.value); setSelectedTrim(''); setSelectedEngine(''); }}
                 className="input-lux">
                 <option value="">Any Year</option>
                 {years.map((year) => <option key={year} value={year}>{year}</option>)}
               </select>
             </div>
             <div>
+              <label className="label-lux">Trim / Submodel</label>
+              <select value={selectedTrim}
+                onChange={(e) => { setSelectedTrim(e.target.value); setSelectedEngine(''); }}
+                disabled={!selectedMake || trims.length === 0}
+                className="input-lux disabled:opacity-40">
+                <option value="">All Trims</option>
+                {trims.map((trim) => <option key={trim} value={trim}>{trim}</option>)}
+              </select>
+            </div>
+            <div className="sm:col-span-2 lg:col-span-2">
               <label className="label-lux">Engine / Liters</label>
               <select value={selectedEngine}
                 onChange={(e) => setSelectedEngine(e.target.value)}
@@ -258,6 +287,9 @@ export default function VehicleLookup() {
                             <span className="text-xs text-slate-500">
                               {vehicle.year_start}–{vehicle.year_end || 'Present'}
                             </span>
+                            {vehicle.trim && vehicle.trim !== 'Base' && (
+                              <span className="badge bg-white/5 text-slate-300">{vehicle.trim}</span>
+                            )}
                             <span className={`badge ${
                               vehicle.engine_type === 'diesel' ? 'bg-blue-950/50 text-blue-300' :
                               vehicle.engine_type === 'hybrid' ? 'bg-emerald-950/50 text-emerald-300' :
